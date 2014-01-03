@@ -1,5 +1,6 @@
 require "mongoid-sequence/version"
 require "active_support/concern"
+require 'mongoid/contextual/find_and_modify'
 
 module Mongoid
   module Sequence
@@ -21,9 +22,9 @@ module Mongoid
     def set_sequence
       collection = self.mongo_session[:__sequences]
       self.class.sequence_fields.each do |field|
-        criteria = Criteria.new
-        criteria.find("#{self.class.name.underscore}_#{field}")
-        next_sequence = FindAndModify.new(collection, criteria, {'$inc' => {seq: 1}}, new: true, upsert: true).result
+        criteria = Mongoid::Criteria.new(nil)
+        criteria.where(_id: "#{self.class.name.underscore}_#{field}")
+        next_sequence = Mongoid::Contextual::FindAndModify.new(collection, criteria, {'$inc' => {seq: 1}}, new: true, upsert: true).result
 
         self[field] = next_sequence['seq']
       end if self.class.sequence_fields
