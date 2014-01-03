@@ -19,7 +19,7 @@ module Mongoid
     end
 
     def set_sequence
-      sequences = self.db.collection('__sequences')
+      sequences = self.database.collection('__sequences')
       self.class.sequence_fields.each do |field|
         next_sequence = sequences.find_and_modify(:query => {'_id' => "#{self.class.name.underscore}_#{field}"},
                                                   :update => {'$inc' => {'seq' => 1}},
