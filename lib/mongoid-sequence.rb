@@ -20,9 +20,9 @@ module Mongoid
 
     def set_sequence
       collection = self.mongo_session[:__sequences]
-      criteria = Criteria.new
-      criteria.find("#{self.class.name.underscore}_#{field}")
       self.class.sequence_fields.each do |field|
+        criteria = Criteria.new
+        criteria.find("#{self.class.name.underscore}_#{field}")
         next_sequence = FindAndModify.new(collection, criteria, {'$inc' => {seq: 1}}, new: true, upsert: true).result
 
         self[field] = next_sequence['seq']
